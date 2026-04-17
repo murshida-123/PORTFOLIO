@@ -107,7 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // ─── CONTACT FORM HANDLING ───
+    // ─── EMAILJS INITIALIZATION ───
+    // ⚠️ Replace with your EmailJS Public Key
+    emailjs.init('4trXYWXNdmD9tDJdA');
+
+    // ─── CONTACT FORM HANDLING (EmailJS) ───
     const contactForm = document.getElementById('contactForm');
     const formStatus = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn');
@@ -139,32 +143,39 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLoader.style.display = 'inline';
         submitBtn.disabled = true;
 
-        // Simulate form submission (replace with actual API endpoint)
-        setTimeout(() => {
-            // Build mailto link as fallback
-            const mailtoSubject = encodeURIComponent(subject || 'Portfolio Contact');
-            const mailtoBody = encodeURIComponent(
-                `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-            );
-            const mailtoLink = `mailto:mariyammamurshida66@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
-
-            // Open mail client
-            window.location.href = mailtoLink;
-
-            // Reset form
+        // ⚠️ Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' with your EmailJS values
+        emailjs.send('service_a2z8xkl', 'template_5k2naya', {
+            from_name: name,
+            from_email: email,
+            subject: subject || 'Portfolio Contact',
+            message: message,
+        })
+        .then(() => {
+            // Success
             btnText.style.display = 'inline';
             btnLoader.style.display = 'none';
             submitBtn.disabled = false;
             contactForm.reset();
-            showStatus('Opening your email client...', 'success');
+            showStatus('Message sent successfully! I\'ll get back to you soon.', 'success');
 
-            // Clear status after 5s
             setTimeout(() => {
                 formStatus.textContent = '';
                 formStatus.className = 'form-status';
             }, 5000);
+        })
+        .catch((error) => {
+            // Error
+            console.error('EmailJS Error:', error);
+            btnText.style.display = 'inline';
+            btnLoader.style.display = 'none';
+            submitBtn.disabled = false;
+            showStatus('Failed to send message. Please try again or email directly.', 'error');
 
-        }, 800);
+            setTimeout(() => {
+                formStatus.textContent = '';
+                formStatus.className = 'form-status';
+            }, 5000);
+        });
     });
 
     function showStatus(msg, type) {
